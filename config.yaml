@@ -1,0 +1,154 @@
+# 数据配置
+data:
+  # 数据根路径，支持相对或绝对路径
+  data_root: "data"
+  # 原始数据路径，建议指向未处理数据目录
+  raw_path: "data/raw"
+  # 处理后数据路径，存放清洗与特征化结果
+  processed_path: "data/processed"
+  # 特征维度，固定为41
+  feature_dim: 41
+  # 数据集划分比例，三个值之和应为1.0
+  split_ratio: [0.7, 0.15, 0.15]
+  # 训练批大小，建议范围: 16-1024
+  batch_size: 128
+
+# 模型配置
+model:
+  # 输入维度，需与特征维度一致
+  input_dim: 41
+  # 隐层维度列表，控制网络容量
+  hidden_dims: [256, 128, 64]
+  # 输出维度，22类常见攻击类型
+  output_dim: 22
+  # 激活函数名称，当前支持: ReLU
+  activation: "ReLU"
+  # Dropout比例，建议范围: 0.0-0.5
+  dropout: 0.3
+  # 是否启用批归一化
+  batch_norm: true
+
+# 训练配置
+training:
+  # 优化器名称，当前支持: Adam
+  optimizer: "Adam"
+  # 学习率，建议范围: 1e-5 到 1e-2
+  learning_rate: 0.001
+  # 损失函数名称，当前支持: CrossEntropyLoss
+  loss_function: "CrossEntropyLoss"
+  # 最大训练轮数，建议范围: 10-300
+  max_epochs: 100
+  # 早停耐心值，验证集指标多少轮不提升则停止
+  early_stopping_patience: 10
+  # 验证间隔（按epoch），建议范围: 1-5
+  validation_interval: 1
+
+# 推理配置
+inference:
+  # 推理批大小，建议范围: 1-256
+  batch_size: 32
+  # 置信度阈值，范围: 0.0-1.0
+  confidence_threshold: 0.7
+  # 实时监控间隔（秒），建议范围: 0.1-10
+  monitor_interval_seconds: 1
+
+# 日志与输出配置
+logging:
+  # 日志级别，支持: DEBUG/INFO/WARNING/ERROR/CRITICAL
+  level: "INFO"
+  # 日志文件路径
+  log_file: "outputs/logs/ids.log"
+  # 模型保存路径
+  model_dir: "outputs/models"
+  # 结果输出路径
+  results_dir: "outputs/results"
+
+features:
+  schema:
+    - protocol_type
+    - src_ip_numeric
+    - dst_ip_numeric
+    - src_port
+    - dst_port
+    - packet_length
+    - inter_packet_time
+    - tcp_flags_syn
+    - tcp_flags_ack
+    - tcp_flags_fin
+    - tcp_flags_rst
+    - tcp_flags_psh
+    - tcp_flags_urg
+    - flow_direction
+    - packet_count
+    - total_bytes
+    - avg_packet_size
+    - max_packet_size
+    - min_packet_size
+    - std_packet_size
+    - initial_window_size
+    - avg_ttl
+    - connection_duration
+    - other_feature_1
+    - other_feature_2
+    - other_feature_3
+    - other_feature_4
+    - other_feature_5
+    - other_feature_6
+    - other_feature_7
+    - other_feature_8
+    - other_feature_9
+    - other_feature_10
+    - other_feature_11
+    - other_feature_12
+    - other_feature_13
+    - other_feature_14
+    - other_feature_15
+    - other_feature_16
+    - other_feature_17
+    - other_feature_18
+  bounds:
+    protocol_type: [0, 2]
+    src_ip_numeric: [0, 4294967295]
+    dst_ip_numeric: [0, 4294967295]
+    src_port: [0, 65535]
+    dst_port: [0, 65535]
+    packet_length: [0, 9000]
+    inter_packet_time: [0, 10]
+    tcp_flags_syn: [0, 1]
+    tcp_flags_ack: [0, 1]
+    tcp_flags_fin: [0, 1]
+    tcp_flags_rst: [0, 1]
+    tcp_flags_psh: [0, 1]
+    tcp_flags_urg: [0, 1]
+    flow_direction: [0, 1]
+    packet_count: [0, 1000000]
+    total_bytes: [0, 1000000000]
+    avg_packet_size: [0, 9000]
+    max_packet_size: [0, 9000]
+    min_packet_size: [0, 9000]
+    std_packet_size: [0, 9000]
+    initial_window_size: [0, 65535]
+    avg_ttl: [0, 255]
+    connection_duration: [0, 3600]
+    other_feature_1: [0, 65535]
+    other_feature_2: [0, 255]
+    other_feature_3: [0, 255]
+    other_feature_4: [0, 65535]
+    other_feature_5: [0, 1]
+    other_feature_6: [0, 1]
+    other_feature_7: [0, 1]
+    other_feature_8: [0, 1]
+    other_feature_9: [0, 1]
+    other_feature_10: [0, 1]
+    other_feature_11: [0, 100000]
+    other_feature_12: [0, 10000000]
+    other_feature_13: [0, 9000]
+    other_feature_14: [0, 6]
+    other_feature_15: [0, 255]
+    other_feature_16: [0, 65535]
+    other_feature_17: [0, 1]
+    other_feature_18: [0, 1]
+  thresholds:
+    well_known_max: 1023
+    ephemeral_min: 49152
+    ephemeral_max: 65535
