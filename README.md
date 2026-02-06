@@ -1,6 +1,6 @@
 # DeepIDS
 
-A deep learning-based network intrusion detection system that processes real-time traffic, extracts 41-dimensional features, and identifies 5+ attack types with 98%+ accuracy. Supports multiple architectures (MLP/LSTM/Transformer/CNN), hyperparameter optimization, and real-time inference with <50ms latency.
+Deep learning-based intrusion detection system. Detects 22+ attack types from network traffic with 98%+ accuracy. Supports MLP/LSTM/Transformer/CNN, hyperparameter optimization, and <50ms inference latency.
 
 ## 🎯 Overview
 
@@ -9,7 +9,7 @@ DeepIDS is a comprehensive intrusion detection system covering feature engineeri
 ## ✨ Key Features
 
 - **41-Dimensional Feature Modeling**: Comprehensive network traffic feature extraction
-- **5+ Attack Type Detection**: Normal, DoS, Probe, U2R, R2L, and more
+- **22+ Attack Type Detection**: Covers common network attacks including DoS, Probe, U2R, R2L, and more
 - **Multiple Model Architectures**: MLP, LSTM, Transformer, CNN
 - **Integrated Training Pipeline**: Training, validation, evaluation with early stopping and model checkpointing
 - **Flexible Inference**: Batch and single-sample prediction with confidence thresholds
@@ -34,17 +34,19 @@ python -m pip install -r requirements.txt
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 from models.deep_learning import DeepLearningClassifier
+from utils.config import ATTACK_TYPES
 from training.train import train_loop
 
 # Prepare data
 x = torch.randn(1000, 41)  # 41-dimensional features
-y = torch.randint(0, 5, (1000,))  # 5 attack types
+num_classes = len(ATTACK_TYPES)  # 22+ attack types
+y = torch.randint(0, num_classes, (1000,))
 
 train_loader = DataLoader(TensorDataset(x, y), batch_size=32, shuffle=True)
 val_loader = DataLoader(TensorDataset(x, y), batch_size=32)
 
 # Create and train model
-model = DeepLearningClassifier(41, [256, 128, 64], 5, 0.3, "ReLU", True)
+model = DeepLearningClassifier(41, [256, 128, 64], num_classes, 0.3, "ReLU", True)
 history = train_loop(
     model=model,
     train_loader=train_loader,
@@ -62,10 +64,12 @@ history = train_loop(
 ```python
 import torch
 from models.deep_learning import DeepLearningClassifier
+from utils.config import ATTACK_TYPES
 from inference.predictor import Predictor
 
 # Load model and create predictor
-model = DeepLearningClassifier(41, [256, 128, 64], 5, 0.3)
+num_classes = len(ATTACK_TYPES)
+model = DeepLearningClassifier(41, [256, 128, 64], num_classes, 0.3)
 predictor = Predictor(model=model, confidence_threshold=0.7)
 
 # Batch prediction
@@ -83,13 +87,14 @@ pred_label, confidence = predictor.predict_one(feature)
 
 ```python
 from models.deep_learning import build_model
+from utils.config import ATTACK_TYPES
 
 # Transformer architecture
 config = {
     "model": {
         "architecture": "transformer",
         "input_dim": 41,
-        "output_dim": 5,
+        "output_dim": len(ATTACK_TYPES),
         "dropout": 0.2,
         "model_dim": 64,
         "num_heads": 4,
@@ -104,11 +109,13 @@ model = build_model(config)
 
 ```python
 from models.deep_learning import DeepLearningClassifier
+from utils.config import ATTACK_TYPES
 from inference.predictor import EnsemblePredictor
 
+num_classes = len(ATTACK_TYPES)
 models = [
-    DeepLearningClassifier(41, [256, 128, 64], 5, 0.3),
-    DeepLearningClassifier(41, [128, 64, 32], 5, 0.2),
+    DeepLearningClassifier(41, [256, 128, 64], num_classes, 0.3),
+    DeepLearningClassifier(41, [128, 64, 32], num_classes, 0.2),
 ]
 ensemble = EnsemblePredictor(models=models, method="soft", confidence_threshold=0.7)
 results = ensemble.predict_batch(torch.randn(32, 41))
@@ -119,7 +126,9 @@ results = ensemble.predict_batch(torch.randn(32, 41))
 ```python
 from torch.utils.data import TensorDataset
 from training.hyperparameter_opt import optimize_hyperparameters
+from utils.config import ATTACK_TYPES
 
+num_classes = len(ATTACK_TYPES)
 train_dataset = TensorDataset(features[:800], labels[:800])
 val_dataset = TensorDataset(features[800:], labels[800:])
 
@@ -150,10 +159,12 @@ features, selected_idx, _ = select_features_rfe(features, labels, n_features=20)
 ```python
 from models.deep_learning import DeepLearningClassifier
 from training.train import distill_train
+from utils.config import ATTACK_TYPES
 
+num_classes = len(ATTACK_TYPES)
 # Teacher (large) and student (small) models
-teacher = DeepLearningClassifier(41, [256, 128, 64], 5, 0.3)
-student = DeepLearningClassifier(41, [128, 64, 32], 5, 0.3)
+teacher = DeepLearningClassifier(41, [256, 128, 64], num_classes, 0.3)
+student = DeepLearningClassifier(41, [128, 64, 32], num_classes, 0.3)
 
 history = distill_train(
     student=student,
@@ -239,9 +250,9 @@ Dense(128) + ReLU + BatchNorm + Dropout(0.3)
     ↓
 Dense(64) + ReLU + BatchNorm + Dropout(0.3)
     ↓
-Dense(5) + Softmax
+Dense(num_classes) + Softmax
     ↓
-Output (5 attack types)
+Output (22+ attack types)
 ```
 
 ### Supported Architectures
@@ -305,7 +316,6 @@ This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
 - No warranty is provided
 
 For full license details, see the [LICENSE](LICENSE) file.
-
 
 ## 📚 Documentation
 
